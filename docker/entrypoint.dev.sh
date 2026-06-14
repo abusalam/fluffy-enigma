@@ -4,8 +4,10 @@ cd /app
 
 echo "[dev] Preparing development container…"
 
-# Composer deps live in the dev-vendor volume; install on first run.
-if [ ! -f vendor/autoload.php ]; then
+# Composer deps live in the dev-vendor volume. The volume may have been
+# pre-seeded with the image's production (--no-dev) vendor, so also (re)install
+# when dev tools like PHPUnit are missing.
+if [ ! -f vendor/autoload.php ] || [ ! -f vendor/bin/phpunit ]; then
     echo "[dev] Installing Composer dependencies (incl. dev)…"
     composer install --no-interaction
 fi

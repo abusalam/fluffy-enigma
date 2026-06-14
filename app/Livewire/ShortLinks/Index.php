@@ -3,8 +3,8 @@
 namespace App\Livewire\ShortLinks;
 
 use App\Models\ShortLink;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Unique;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -21,11 +21,15 @@ class Index extends Component
     public string $search = '';
 
     public bool $showModal = false;
+
     public ?int $editingId = null;
 
     public string $destination_url = '';
+
     public string $code = '';
+
     public string $title = '';
+
     public bool $is_active = true;
 
     /** Reserved first path segments that must not be used as a code. */
@@ -130,7 +134,7 @@ class Index extends Component
     protected function uniqueCode(): string
     {
         do {
-            $code = strtolower(\Illuminate\Support\Str::random(6));
+            $code = strtolower(Str::random(6));
         } while (ShortLink::where('code', $code)->exists() || in_array($code, $this->reserved, true));
 
         return $code;

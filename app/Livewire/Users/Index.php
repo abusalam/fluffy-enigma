@@ -21,12 +21,17 @@ class Index extends Component
     public string $search = '';
 
     public bool $showModal = false;
+
     public ?int $editingId = null;
 
     public string $name = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public bool $is_active = true;
+
     /** @var array<int,string> */
     public array $roles = [];
 

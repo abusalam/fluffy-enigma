@@ -20,16 +20,21 @@ class Wizard extends Component
     use WithFileUploads;
 
     public int $step = 1;
+
     public int $totalSteps = 4;
 
     // Branding
     public string $appName = '';
+
     public $logo; // TemporaryUploadedFile|null
 
     // Super administrator
     public string $name = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
 
     /** @var array<int,array{key:string,label:string,done:bool}> */

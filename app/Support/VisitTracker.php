@@ -14,6 +14,7 @@ class VisitTracker
 {
     /** 1-year visitor cookie. */
     private const COOKIE = 'vid';
+
     private const TTL_MINUTES = 525600;
 
     /**

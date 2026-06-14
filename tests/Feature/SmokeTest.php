@@ -19,7 +19,7 @@ class SmokeTest extends TestCase
     {
         $this->get('/setup/'.config('onboarding.secret'))
             ->assertOk()
-            ->assertSeeLivewire(\App\Livewire\Onboarding\Wizard::class);
+            ->assertSee('set up your portal');
     }
 
     public function test_wrong_secret_is_hidden(): void

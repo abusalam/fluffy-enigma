@@ -23,19 +23,31 @@ class Index extends Component
     public string $status = '';
 
     public bool $showModal = false;
+
     public ?int $editingId = null;
 
     public string $name = '';
+
     public string $code = '';
+
     public string $department = '';
+
     public string $category = '';
+
     public string $scheme_status = 'draft';
+
     public ?string $start_date = null;
+
     public ?string $end_date = null;
+
     public $budget_allocated = 0;
+
     public $budget_disbursed = 0;
+
     public $target_beneficiaries = 0;
+
     public $enrolled_beneficiaries = 0;
+
     public string $description = '';
 
     protected function rules(): array

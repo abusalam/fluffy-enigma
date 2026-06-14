@@ -14,9 +14,11 @@ use Spatie\Permission\Models\Role;
 class Index extends Component
 {
     public bool $showModal = false;
+
     public ?int $editingId = null;
 
     public string $name = '';
+
     /** @var array<int,string> */
     public array $permissions = [];
 

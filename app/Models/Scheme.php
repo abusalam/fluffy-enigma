@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\SchemeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Scheme extends Model
 {
-    /** @use HasFactory<\Database\Factories\SchemeFactory> */
+    /** @use HasFactory<SchemeFactory> */
     use HasFactory;
 
     protected $fillable = [

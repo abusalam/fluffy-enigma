@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Permission;
 class Index extends Component
 {
     public bool $showModal = false;
+
     public string $name = '';
 
     protected function rules(): array
