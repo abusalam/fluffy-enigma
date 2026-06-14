@@ -213,6 +213,21 @@ VM (or after a rebuild).
 
 ### Step 3 — build, push & deploy
 
+You can build the image **two ways** — pick one:
+
+**a) CI (recommended).** The GitHub Actions workflow (`.github/workflows/ci.yml`)
+runs on every push to `master`: it lints, tests, builds the `linux/amd64` image, and
+pushes `ghcr.io/<owner>/scheme-monitor:latest` (+ a `YYYYMMDD-HHMMSS` and `sha-…`
+tag) to GHCR — using the repo's built-in `GITHUB_TOKEN` (no PAT needed). It also
+uploads the compiled assets + a resolved `composer.lock` as downloadable workflow
+artifacts. Then just deploy what CI built:
+
+```bash
+make deploy        # pulls ghcr.io/<owner>/scheme-monitor:latest onto the VM
+```
+
+**b) Local build.** Build & push from your machine instead:
+
 ```bash
 export GHCR_TOKEN=ghp_xxx          # write:packages
 # private package? also: export GHCR_PULL_TOKEN=$GHCR_TOKEN

@@ -1,5 +1,7 @@
 # Scheme Monitor
 
+[![CI](https://github.com/abusalam/fluffy-enigma/actions/workflows/ci.yml/badge.svg)](https://github.com/abusalam/fluffy-enigma/actions/workflows/ci.yml)
+
 A single-container **Laravel 12 + Livewire** portal for monitoring government /
 welfare schemes, with **dynamic role-based access control**, a **configurable logo**,
 and a **secret-URL first-run onboarding** wizard. Until setup is finished the public
