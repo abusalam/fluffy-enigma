@@ -1,0 +1,27 @@
+{
+	# FrankenPHP global directive enables the embedded PHP server.
+	frankenphp
+	admin off
+	# HTTPS is automatic: a bare ":80" SERVER_NAME stays HTTP (no certs),
+	# while a hostname triggers automatic Let's Encrypt certificates.
+}
+
+{$SERVER_NAME::80} {
+	root * /app/public
+	encode zstd gzip
+
+	# Serve the Laravel front controller.
+	php_server {
+		index index.php
+	}
+
+	# Long-cache hashed build assets.
+	@immutable path /build/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	log {
+		output stderr
+		format console
+		level WARN
+	}
+}

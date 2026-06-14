@@ -1,0 +1,61 @@
+# Docker-only development environment — no PHP/Node needed on the host.
+#
+#   docker compose -f compose.dev.yaml up --build
+#
+# App:  http://localhost:8000      Vite HMR: http://localhost:5173
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: scheme-monitor:dev
+    container_name: scheme-monitor-dev
+    working_dir: /app
+    entrypoint: ["/bin/sh", "/app/docker/entrypoint.dev.sh"]
+    command: ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      SERVER_NAME: ":80"
+      LOG_LEVEL: debug
+      LOG_STACK: stderr
+      SEED_DEMO_DATA: "true"
+      APP_ONBOARDING_SECRET: dev-setup-secret
+    volumes:
+      - .:/app                      # live source
+      - dev-vendor:/app/vendor      # keep vendor/ off the host bind for speed
+    ports:
+      - "8000:80"
+    # Disable OPcache timestamp pinning so PHP edits show up immediately.
+    configs:
+      - source: php_dev_ini
+        target: /usr/local/etc/php/conf.d/zz-dev.ini
+
+  vite:
+    image: node:20-bookworm-slim
+    container_name: scheme-monitor-vite
+    working_dir: /app
+    restart: unless-stopped
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    environment:
+      APP_URL: http://localhost:8000
+    volumes:
+      - .:/app
+      - dev-node-modules:/app/node_modules   # isolated from the host bind mount
+    ports:
+      - "5173:5173"
+
+configs:
+  php_dev_ini:
+    content: |
+      memory_limit = 256M
+      upload_max_filesize = 8M
+      post_max_size = 12M
+      opcache.enable = 0
+      opcache.validate_timestamps = 1
+
+volumes:
+  dev-vendor:
+  dev-node-modules:

@@ -1,0 +1,43 @@
+# Production single-container stack (FrankenPHP serves the whole app).
+# Usage:  docker compose up -d --build
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    # On the VM this is the pulled GHCR ref (set as APP_IMAGE in .env);
+    # locally it defaults to a build tag so `docker compose up --build` still works.
+    image: ${APP_IMAGE:-scheme-monitor:latest}
+    container_name: scheme-monitor
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # SERVER_NAME drives Caddy: ":80" = HTTP only, "domain.tld" = auto-HTTPS.
+      SERVER_NAME: ${SERVER_NAME:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      # SQLite + uploads persist here; migrations stay in the image at /app/database.
+      - app-storage:/app/storage
+      - caddy-data:/data      # Let's Encrypt certificates + Caddy state
+      - caddy-config:/config
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:80/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    # Keep the container honest on a 1 GB VM.
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+volumes:
+  app-storage:
+  caddy-data:
+  caddy-config:
