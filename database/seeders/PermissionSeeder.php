@@ -19,7 +19,6 @@ class PermissionSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $permissions = [
-            'dashboard.view',
             'schemes.view', 'schemes.manage',
             'shortlinks.view', 'shortlinks.manage', 'shortlinks.view_all',
             'users.view', 'users.manage',
@@ -39,13 +38,15 @@ class PermissionSeeder extends Seeder
 
         $schemeManager = Role::findOrCreate('scheme-manager', 'web');
         $schemeManager->syncPermissions([
-            'dashboard.view',
             'schemes.view', 'schemes.manage',
             'shortlinks.view', 'shortlinks.manage',
         ]);
 
         $viewer = Role::findOrCreate('viewer', 'web');
-        $viewer->syncPermissions(['dashboard.view', 'schemes.view']);
+        $viewer->syncPermissions(['schemes.view']);
+
+        // The dashboard is now gated by `schemes.view`; drop the obsolete one.
+        Permission::where('name', 'dashboard.view')->delete();
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }

@@ -14,7 +14,7 @@
 <div class="min-h-full">
     @php
         $nav = [
-            ['route' => 'dashboard', 'label' => 'Dashboard', 'perm' => 'dashboard.view', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+            ['route' => 'dashboard', 'label' => 'Dashboard', 'perm' => 'schemes.view', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
             ['route' => 'schemes.index', 'label' => 'Schemes', 'perm' => 'schemes.view', 'icon' => 'M9 17v-6h13M9 5h13M4 7h.01M4 12h.01M4 17h.01'],
             ['route' => 'shortlinks.index', 'label' => 'Short Links', 'perm' => 'shortlinks.view', 'icon' => 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 10-5.656-5.656l-1.1 1.1'],
             ['route' => 'users.index', 'label' => 'Users', 'perm' => 'users.view', 'icon' => 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1a4 4 0 100-8 4 4 0 000 8z'],
@@ -80,6 +80,11 @@
                 </div>
             @endif
             {{ $slot }}
+
+            <footer class="mt-10 border-t border-gray-200 pt-4 text-center text-xs text-gray-400">
+                {{ $brandName ?? config('app.name') }} ·
+                <span class="font-mono">v{{ config('app.version') }}</span>
+            </footer>
         </main>
     </div>
 </div>

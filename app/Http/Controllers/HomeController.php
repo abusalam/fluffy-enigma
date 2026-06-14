@@ -22,6 +22,6 @@ class HomeController extends Controller
             return response()->view('under-construction', status: 200);
         }
 
-        return redirect()->route(Auth::check() ? 'dashboard' : 'login');
+        return redirect()->route(Auth::check() ? landing_route() : 'login');
     }
 }

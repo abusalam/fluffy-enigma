@@ -43,7 +43,7 @@ Route::get('/', HomeController::class)->name('home');
 */
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', Dashboard::class)
-        ->middleware('permission:dashboard.view')->name('dashboard');
+        ->middleware('permission:schemes.view')->name('dashboard');
 
     Route::get('/schemes', SchemesIndex::class)
         ->middleware('permission:schemes.view')->name('schemes.index');

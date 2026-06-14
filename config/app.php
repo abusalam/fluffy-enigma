@@ -4,6 +4,9 @@ return [
 
     'name' => env('APP_NAME', 'Scheme Monitor'),
 
+    // Build version, stamped into the image at build time (see Dockerfile / CI).
+    'version' => env('APP_VERSION', 'dev'),
+
     'env' => env('APP_ENV', 'production'),
 
     'debug' => (bool) env('APP_DEBUG', false),

@@ -30,3 +30,34 @@ if (! function_exists('app_brand_name')) {
         return Setting::get('app_name', config('app.name', 'Scheme Monitor'));
     }
 }
+
+if (! function_exists('landing_route')) {
+    /**
+     * The best landing route for the current user: the first section they have
+     * permission to see. Keeps users without `schemes.view` off the dashboard.
+     */
+    function landing_route(): string
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return 'login';
+        }
+
+        $candidates = [
+            'dashboard' => 'schemes.view',
+            'shortlinks.index' => 'shortlinks.view',
+            'users.index' => 'users.view',
+            'roles.index' => 'roles.view',
+            'permissions.index' => 'permissions.view',
+        ];
+
+        foreach ($candidates as $route => $permission) {
+            if ($user->can($permission)) {
+                return $route;
+            }
+        }
+
+        return 'dashboard';
+    }
+}

@@ -62,6 +62,10 @@ COPY docker/Caddyfile /etc/caddy/Caddyfile
 COPY docker/entrypoint.sh /usr/local/bin/app-entrypoint
 RUN chmod +x /usr/local/bin/app-entrypoint
 
+# Build version surfaced in the app footer (passed by CI / build-push.sh).
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
+
 ENV SERVER_NAME=":80"
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \

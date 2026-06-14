@@ -8,6 +8,7 @@ require docker
 
 REPO="$(image_repo)"
 TS="$(date -u +%Y%m%d-%H%M%S)"
+VERSION="$(date -u +%Y.%m.%d)+$(git -C "$ROOT_DIR" rev-parse --short HEAD 2>/dev/null || echo local)"
 
 : "${GHCR_TOKEN:?export GHCR_TOKEN with a GitHub PAT that has write:packages}"
 
@@ -17,6 +18,7 @@ printf '%s' "$GHCR_TOKEN" | docker login "$IMAGE_REGISTRY" -u "$IMAGE_OWNER" --p
 log "Building ${REPO}:${TS} (+ :latest) for linux/amd64…"
 # e2-micro is linux/amd64. On an arm64 host this uses emulation via buildx.
 docker build --platform linux/amd64 \
+  --build-arg APP_VERSION="$VERSION" \
   -t "${REPO}:${TS}" \
   -t "${REPO}:latest" \
   "$ROOT_DIR"
