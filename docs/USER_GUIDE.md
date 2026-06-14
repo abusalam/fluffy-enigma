@@ -49,10 +49,11 @@ low enough for a 1 GB VM.
 | Cache | File store | No Redis to run |
 | Sessions | File driver | Same |
 | Queue | `sync` | No worker process needed for this workload |
+| CI/CD | **GitHub Actions → GHCR** | Builds, tests & publishes the image; the VM only pulls |
 
 **Memory budget (typical idle):** FrankenPHP + PHP + OPcache ≈ 120–200 MB, leaving
-plenty of the 1 GB for the OS page cache and request spikes. A 2 GB swap file
-absorbs the Docker image **build** (the only memory-hungry step) and rare bursts.
+plenty of the 1 GB for the OS page cache and request spikes. The image **build** (the
+only memory-hungry step) runs in CI, not on the VM; a 2 GB swap file covers rare bursts.
 
 **Why SQLite here?** A single container on one VM has one writer; SQLite in WAL mode
 comfortably handles a monitoring/admin workload with far less RAM and operational
@@ -175,19 +176,27 @@ appear immediately; Blade/Livewire/JS hot-reload through Vite.
 
 ## 4. Production deploy to a VM (SSH + GHCR)
 
-You provide the VM (an e2-micro, any cloud, or bare metal). The image is built and
-pushed to **GitHub Container Registry (GHCR)** from your machine; the VM **pulls** it
-over plain **SSH** — no provider CLI. The VM never builds (the build is the only
-memory-hungry step), so deploys are fast and reliable on 1 GB RAM.
+**The image is built by CI** (GitHub Actions) and published to **GitHub Container
+Registry (GHCR)**. Your machine never builds it — you just push code, then run a
+deploy that **pulls** the CI-built image onto the VM over plain **SSH** (no provider
+CLI). The VM never builds either (the build is the only memory-hungry step), so
+deploys are fast and reliable on 1 GB RAM.
+
+```
+  git push  ──►  GitHub Actions: lint → test → build → push image to GHCR
+                                                   │
+                          make deploy  ──(SSH)──►  VM: docker compose pull && up
+```
 
 ### Prerequisites
 
+- The repo on **GitHub** (CI builds on push). The pipeline uses the built-in
+  `GITHUB_TOKEN` — **no PAT needed to build/publish**.
 - A VM you can **SSH into**, with a user that has **sudo** (to run Docker). Debian/
   Ubuntu is assumed by the bootstrap (apt). Open inbound **tcp/22, 80, 443** (and
   udp/443 for HTTP/3) in your provider's firewall.
-- **Docker** locally (to build & push the image).
-- A **GitHub Personal Access Token (classic)** with `write:packages` (and
-  `read:packages`). Export it: `export GHCR_TOKEN=ghp_xxx`.
+- **Docker locally is NOT required** for normal deploys (only for the optional local
+  build fallback below).
 
 ### Step 1 — configure
 
@@ -211,52 +220,63 @@ Over SSH this installs **Docker Engine + Compose**, creates a **2 GB swap file**
 (`SWAP_SIZE`), and caps Docker log size. Idempotent — safe to re-run. Run it once per
 VM (or after a rebuild).
 
-### Step 3 — build, push & deploy
+### Step 3 — let CI build the image
 
-You can build the image **two ways** — pick one:
+Push to `master` (or open/merge a PR). The workflow `.github/workflows/ci.yml` runs
+lint + tests, then builds the `linux/amd64` image and pushes these tags to
+`ghcr.io/<owner>/scheme-monitor`:
 
-**a) CI (recommended).** The GitHub Actions workflow (`.github/workflows/ci.yml`)
-runs on every push to `master`: it lints, tests, builds the `linux/amd64` image, and
-pushes `ghcr.io/<owner>/scheme-monitor:latest` (+ a `YYYYMMDD-HHMMSS` and `sha-…`
-tag) to GHCR — using the repo's built-in `GITHUB_TOKEN` (no PAT needed). It also
-uploads the compiled assets + a resolved `composer.lock` as downloadable workflow
-artifacts. Then just deploy what CI built:
+| Tag | When |
+|-----|------|
+| `latest` | every push to the default branch |
+| `YYYYMMDD-HHMMSS` | every push to the default branch (immutable, roll-back-able) |
+| `sha-<short>` | every build (ties an image to a commit) |
+| `vX.Y.Z` / `X.Y.Z` | when you push a `v*` git tag |
+
+Watch it under the repo's **Actions** tab; the run summary prints the published tags.
+(It also uploads the compiled assets + a resolved `composer.lock` as downloadable
+workflow artifacts.) Wait for the green check before deploying.
+
+### Step 4 — deploy what CI built
 
 ```bash
-make deploy        # pulls ghcr.io/<owner>/scheme-monitor:latest onto the VM
+make deploy        # = ./deploy/deploy.sh
 ```
 
-**b) Local build.** Build & push from your machine instead:
+`deploy/deploy.sh` over SSH copies `docker-compose.yml`, writes a production `.env`
+on first run (fresh `APP_KEY` + `APP_ONBOARDING_SECRET`, `SERVER_NAME`/`APP_URL` from
+`DOMAIN`/`SSH_HOST`, and `APP_IMAGE` = the image to pull), then runs
+`docker compose pull && docker compose up -d --no-build`. With no argument it pulls
+**`:latest`**; pass a specific tag to pin or roll back:
 
 ```bash
-export GHCR_TOKEN=ghp_xxx          # write:packages
-# private package? also: export GHCR_PULL_TOKEN=$GHCR_TOKEN
-make release                       # = make push + make deploy
+./deploy/deploy.sh ghcr.io/<owner>/scheme-monitor:20260614-015300
 ```
 
-- **`deploy/build-push.sh`** (`make push`) — builds the image locally for
-  `linux/amd64` and pushes `ghcr.io/<owner>/scheme-monitor:<timestamp>` **and**
-  `:latest`. The timestamp tag is recorded in `deploy/.last-image`.
-- **`deploy/deploy.sh`** (`make deploy`) — over SSH copies `docker-compose.yml`,
-  writes a production `.env` (fresh `APP_KEY` + `APP_ONBOARDING_SECRET`,
-  `SERVER_NAME`/`APP_URL` from `DOMAIN`/`SSH_HOST`, and `APP_IMAGE`= the pushed tag),
-  then runs `docker compose pull && docker compose up -d --no-build`.
-
-To ship a change later: `make release`. To roll back, pass an older tag:
-`./deploy/deploy.sh ghcr.io/<owner>/scheme-monitor:<older-timestamp>`.
-
-> **GHCR package visibility:** new packages are **private**. Either make the package
-> public on GitHub (then the VM pulls anonymously), or export `GHCR_PULL_TOKEN`
-> before deploying so the VM authenticates with `docker login`.
-
-At the end it prints:
+It prints:
 
 ```
 Public site (under construction until setup): http://<SSH_HOST>/
 One-time setup wizard: http://<SSH_HOST>/setup/<generated-secret>
 ```
 
-### Step 4 — onboard
+> **GHCR package visibility:** new packages are **private**. Either make the
+> `scheme-monitor` package **public** on GitHub (then the VM pulls anonymously), or
+> `export GHCR_PULL_TOKEN=<read:packages PAT>` before `make deploy` so the VM
+> authenticates with `docker login`.
+
+#### Optional: build locally instead of CI
+
+If you ever need to build without CI (offline, debugging), export a PAT with
+`write:packages` and use the local path — it pushes the same tags and then deploys:
+
+```bash
+export GHCR_TOKEN=ghp_xxx
+make release        # = make push (build+push from your machine) + make deploy
+```
+This is the **only** path that needs Docker + a write PAT on your machine.
+
+### Step 5 — onboard
 
 Open the setup URL, complete the 4-step wizard, and the portal is live. The
 under-construction page disappears for everyone.
@@ -271,8 +291,11 @@ under-construction page disappears for everyone.
 
 ### Re-deploying changes
 
+Push your change → wait for CI to publish a new image → pull it on the VM:
+
 ```bash
-./deploy/deploy.sh        # re-tar, upload, rebuild, restart (keeps .env, DB, certs)
+git push                  # CI builds & pushes ghcr.io/<owner>/scheme-monitor:latest
+make deploy               # VM pulls :latest and restarts (keeps .env, DB, certs)
 ```
 
 ---
@@ -333,9 +356,9 @@ Copy it off the VM with `scp <SSH_USER>@<SSH_HOST>:/opt/scheme-monitor/backup-*.
 Uploaded logos live in the same `app-storage` volume
 (`/app/storage/app/public/branding`).
 
-**Update the app:** edit code locally, then `make release` (build → push to GHCR →
-pull on the VM). The VM never builds; it just pulls the new image. Migrations run
-automatically at container start. Roll back with
+**Update the app:** push your change to `master` → CI builds & publishes a new image
+→ `make deploy` pulls it on the VM. Neither your machine nor the VM builds anything.
+Migrations run automatically at container start. Roll back with
 `./deploy/deploy.sh ghcr.io/<owner>/scheme-monitor:<older-timestamp>`.
 
 **Resource check:**
@@ -362,7 +385,7 @@ ssh <SSH_USER>@<SSH_HOST> 'cd /opt/scheme-monitor && sudo docker compose down'
 | Still see “under construction” after onboarding | `onboarding_completed` not set — check logs; config cache stale → `docker compose restart app` |
 | HTTPS not issued | DNS A record not pointing at the IP yet, or ports 80/443 blocked; Caddy retries — see logs |
 | 500 on first request | Usually a missing `APP_KEY`; ensure it’s set in `.env`, then restart |
-| Assets 404 in prod | The image build runs `npm run build`; rebuild + redeploy with `make release` |
+| Assets 404 in prod | The image build runs `npm run build`; push to rebuild via CI, then `make deploy` |
 | Permission denied on storage | Entrypoint chowns on boot; if a volume was pre-created, `docker compose restart app` |
 
 View detailed logs over SSH: `ssh <SSH_USER>@<SSH_HOST> 'cd /opt/scheme-monitor && sudo docker compose logs -f app'`.

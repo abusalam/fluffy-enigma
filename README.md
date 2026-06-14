@@ -73,23 +73,27 @@ make test
 
 ## Quick start — production on a VM (SSH + GHCR)
 
-Bring your own VM (e2-micro or anything you can SSH into). The image is built &
-pushed to **GitHub Container Registry** from your machine and **pulled** on the VM
-over plain SSH — no provider CLI, and the VM never builds.
+Bring your own VM (e2-micro or anything you can SSH into). **CI builds the image** and
+pushes it to **GitHub Container Registry**; you deploy by **pulling** it onto the VM
+over plain SSH — no provider CLI, no local build, and the VM never builds.
 
 ```bash
 cp deploy/config.env.example deploy/config.env   # set SSH_HOST/SSH_USER, IMAGE_OWNER, optional DOMAIN
-export GHCR_TOKEN=ghp_xxx                         # GitHub PAT with write:packages
-# for a private package also: export GHCR_PULL_TOKEN=$GHCR_TOKEN
 
 make configure   # one-time: install Docker + 2 GB swap on the VM (over SSH)
-make release     # build → push to GHCR → pull & run on the VM
+git push         # GitHub Actions builds, tests & pushes the image to GHCR
+make deploy      # VM pulls the CI-built image and runs it
 ```
 
-Iterate later with `make release` (or `make push` / `make deploy` individually). The
-deploy step prints your one-time setup URL, e.g. `http://<SSH_HOST>/setup/<secret>`.
-Open it, create the super-admin, and the portal goes live. Full walkthrough:
-[docs/USER_GUIDE.md](docs/USER_GUIDE.md).
+Iterate later by pushing again (CI rebuilds) then `make deploy`. The deploy step
+prints your one-time setup URL, e.g. `http://<SSH_HOST>/setup/<secret>`. Open it,
+create the super-admin, and the portal goes live.
+
+> Prefer to build locally instead of CI? `export GHCR_TOKEN=ghp_xxx` (write:packages)
+> and run `make release` (= `make push` + `make deploy`). GHCR packages are private by
+> default — make it public or `export GHCR_PULL_TOKEN=$GHCR_TOKEN` so the VM can pull.
+
+Full walkthrough: [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 
 ## Project layout
 
