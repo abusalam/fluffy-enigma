@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Deploy by PULLING the pre-built image from GHCR onto the VM, over plain SSH.
 # Run ./deploy/build-push.sh first. Pass an explicit image ref to roll back:
-#   ./deploy/deploy.sh ghcr.io/owner/scheme-monitor:20260614-001122
+#   ./deploy/deploy.sh ghcr.io/owner/fluffy-enigma:20260614-001122
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib.sh"
 load_config

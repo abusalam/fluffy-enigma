@@ -9,8 +9,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runtime
-    image: scheme-monitor:dev
-    container_name: scheme-monitor-dev
+    image: fluffy-enigma:dev
+    container_name: fluffy-enigma-dev
     working_dir: /app
     entrypoint: ["/bin/sh", "/app/docker/entrypoint.dev.sh"]
     command: ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
@@ -35,7 +35,7 @@ services:
 
   vite:
     image: node:20-bookworm-slim
-    container_name: scheme-monitor-vite
+    container_name: fluffy-enigma-vite
     working_dir: /app
     restart: unless-stopped
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"

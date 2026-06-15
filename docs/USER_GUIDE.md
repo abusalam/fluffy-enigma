@@ -25,7 +25,7 @@ low enough for a 1 GB VM.
                 Internet
                    │  :80 / :443 (+ :443/udp HTTP/3)
         ┌──────────▼───────────────────────────────┐
-        │  Docker container  (scheme-monitor)       │
+        │  Docker container  (fluffy-enigma)       │
         │                                           │
         │   FrankenPHP  ── Caddy ──► php_server      │
         │        │            (auto-HTTPS if DOMAIN) │
@@ -224,7 +224,7 @@ VM (or after a rebuild).
 
 Push to `master` (or open/merge a PR). The workflow `.github/workflows/ci.yml` runs
 lint + tests, then builds the `linux/amd64` image and pushes these tags to
-`ghcr.io/<owner>/scheme-monitor`:
+`ghcr.io/<owner>/fluffy-enigma`:
 
 | Tag | When |
 |-----|------|
@@ -250,7 +250,7 @@ on first run (fresh `APP_KEY` + `APP_ONBOARDING_SECRET`, `SERVER_NAME`/`APP_URL`
 **`:latest`**; pass a specific tag to pin or roll back:
 
 ```bash
-./deploy/deploy.sh ghcr.io/<owner>/scheme-monitor:20260614-015300
+./deploy/deploy.sh ghcr.io/<owner>/fluffy-enigma:20260614-015300
 ```
 
 It prints:
@@ -261,7 +261,7 @@ One-time setup wizard: http://<SSH_HOST>/setup/<generated-secret>
 ```
 
 > **GHCR package visibility:** new packages are **private**. Either make the
-> `scheme-monitor` package **public** on GitHub (then the VM pulls anonymously), or
+> `fluffy-enigma` package **public** on GitHub (then the VM pulls anonymously), or
 > `export GHCR_PULL_TOKEN=<read:packages PAT>` before `make deploy` so the VM
 > authenticates with `docker login`.
 
@@ -294,7 +294,7 @@ under-construction page disappears for everyone.
 Push your change → wait for CI to publish a new image → pull it on the VM:
 
 ```bash
-git push                  # CI builds & pushes ghcr.io/<owner>/scheme-monitor:latest
+git push                  # CI builds & pushes ghcr.io/<owner>/fluffy-enigma:latest
 make deploy               # VM pulls :latest and restarts (keeps .env, DB, certs)
 ```
 
@@ -328,11 +328,11 @@ Set in `.env` (production) or the dev compose file. Key ones:
 ## 6. Operations
 
 SSH into the VM (`ssh <SSH_USER>@<SSH_HOST>`) and run these from inside
-`REMOTE_DIR` (default `/opt/scheme-monitor`).
+`REMOTE_DIR` (default `/opt/fluffy-enigma`).
 
 **Tail logs** (from your laptop, over SSH):
 ```bash
-ssh <SSH_USER>@<SSH_HOST> 'cd /opt/scheme-monitor && sudo docker compose logs -f --tail=100 app'
+ssh <SSH_USER>@<SSH_HOST> 'cd /opt/fluffy-enigma && sudo docker compose logs -f --tail=100 app'
 ```
 
 **Restart / stop / start:**
@@ -352,14 +352,14 @@ sudo docker compose exec app php artisan tinker
 # on the VM, in REMOTE_DIR
 sudo docker compose cp app:/app/storage/app/database/database.sqlite ./backup-$(date +%F).sqlite
 ```
-Copy it off the VM with `scp <SSH_USER>@<SSH_HOST>:/opt/scheme-monitor/backup-*.sqlite .`.
+Copy it off the VM with `scp <SSH_USER>@<SSH_HOST>:/opt/fluffy-enigma/backup-*.sqlite .`.
 Uploaded logos live in the same `app-storage` volume
 (`/app/storage/app/public/branding`).
 
 **Update the app:** push your change to `master` → CI builds & publishes a new image
 → `make deploy` pulls it on the VM. Neither your machine nor the VM builds anything.
 Migrations run automatically at container start. Roll back with
-`./deploy/deploy.sh ghcr.io/<owner>/scheme-monitor:<older-timestamp>`.
+`./deploy/deploy.sh ghcr.io/<owner>/fluffy-enigma:<older-timestamp>`.
 
 **Resource check:**
 ```bash
@@ -369,7 +369,7 @@ free -h
 
 **Stop / tear down the app** (the VM itself you manage in your provider):
 ```bash
-ssh <SSH_USER>@<SSH_HOST> 'cd /opt/scheme-monitor && sudo docker compose down'
+ssh <SSH_USER>@<SSH_HOST> 'cd /opt/fluffy-enigma && sudo docker compose down'
 # add -v to also delete the data volumes (DB, uploads, certs) — irreversible
 ```
 
@@ -388,7 +388,7 @@ ssh <SSH_USER>@<SSH_HOST> 'cd /opt/scheme-monitor && sudo docker compose down'
 | Assets 404 in prod | The image build runs `npm run build`; push to rebuild via CI, then `make deploy` |
 | Permission denied on storage | Entrypoint chowns on boot; if a volume was pre-created, `docker compose restart app` |
 
-View detailed logs over SSH: `ssh <SSH_USER>@<SSH_HOST> 'cd /opt/scheme-monitor && sudo docker compose logs -f app'`.
+View detailed logs over SSH: `ssh <SSH_USER>@<SSH_HOST> 'cd /opt/fluffy-enigma && sudo docker compose logs -f app'`.
 Temporarily set `APP_DEBUG=true` in `.env` + restart to see stack traces — revert after.
 
 ---

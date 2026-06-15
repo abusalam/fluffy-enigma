@@ -8,8 +8,8 @@ services:
       target: runtime
     # On the VM this is the pulled GHCR ref (set as APP_IMAGE in .env);
     # locally it defaults to a build tag so `docker compose up --build` still works.
-    image: ${APP_IMAGE:-scheme-monitor:latest}
-    container_name: scheme-monitor
+    image: ${APP_IMAGE:-fluffy-enigma:latest}
+    container_name: fluffy-enigma
     restart: unless-stopped
     env_file:
       - .env
