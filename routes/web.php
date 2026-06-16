@@ -8,6 +8,7 @@ use App\Livewire\Dashboard;
 use App\Livewire\Onboarding\Wizard;
 use App\Livewire\Permissions\Index as PermissionsIndex;
 use App\Livewire\Roles\Index as RolesIndex;
+use App\Livewire\Settings\General as SettingsGeneral;
 use App\Livewire\ShortLinks\Index as ShortLinksIndex;
 use App\Livewire\Users\Index as UsersIndex;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/permissions', PermissionsIndex::class)
         ->middleware('permission:permissions.view')->name('permissions.index');
+
+    Route::get('/settings', SettingsGeneral::class)
+        ->middleware('permission:settings.manage')->name('settings.index');
 });
 
 /*
