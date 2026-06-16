@@ -1,7 +1,7 @@
 {
     "name": "fluffy/fluffy-enigma",
     "type": "project",
-    "description": "Scheme Monitoring portal with dynamic RBAC and secret-URL onboarding (Laravel 12 + Livewire 3 + FrankenPHP).",
+    "description": "Fluffy Enigma portal with dynamic RBAC and secret-URL onboarding (Laravel 12 + Livewire 3 + FrankenPHP).",
     "keywords": ["laravel", "livewire", "rbac", "frankenphp"],
     "license": "MIT",
     "require": {

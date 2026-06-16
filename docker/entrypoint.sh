@@ -31,11 +31,6 @@ php artisan migrate --force --no-interaction
 echo "[entrypoint] Seeding baseline roles & permissions…"
 php artisan db:seed --class='Database\Seeders\PermissionSeeder' --force --no-interaction || true
 
-if [ "${SEED_DEMO_DATA:-false}" = "true" ]; then
-    echo "[entrypoint] Seeding demo schemes…"
-    php artisan db:seed --class='Database\Seeders\DemoSchemeSeeder' --force --no-interaction || true
-fi
-
 # --- Public storage symlink (logo uploads) ---------------------------------
 php artisan storage:link --force >/dev/null 2>&1 || true
 

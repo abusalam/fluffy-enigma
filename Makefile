@@ -46,8 +46,8 @@ migrate: ## Run migrations
 fresh: ## Drop & rebuild the database with seeds
 	$(DEV) exec app php artisan migrate:fresh --seed
 
-seed: ## Seed demo schemes
-	$(DEV) exec app php artisan db:seed --class='Database\Seeders\DemoSchemeSeeder'
+seed: ## Seed baseline roles & permissions
+	$(DEV) exec app php artisan db:seed --class='Database\Seeders\PermissionSeeder'
 
 key: ## Generate APP_KEY
 	$(DEV) exec app php artisan key:generate

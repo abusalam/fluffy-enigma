@@ -25,9 +25,6 @@ mkdir -p "$(dirname "$DB_FILE")"
 
 php artisan migrate --force --no-interaction
 php artisan db:seed --class='Database\Seeders\PermissionSeeder' --force --no-interaction || true
-if [ "${SEED_DEMO_DATA:-false}" = "true" ]; then
-    php artisan db:seed --class='Database\Seeders\DemoSchemeSeeder' --force --no-interaction || true
-fi
 
 php artisan storage:link >/dev/null 2>&1 || true
 php artisan optimize:clear >/dev/null 2>&1 || true

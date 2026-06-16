@@ -24,6 +24,6 @@ return [
         ['key' => 'branding', 'label' => 'Upload organisation logo & set portal name', 'done' => false],
         ['key' => 'superuser', 'label' => 'Create the super administrator account', 'done' => false],
         ['key' => 'roles', 'label' => 'Review default roles & permissions', 'done' => false],
-        ['key' => 'schemes', 'label' => 'Add your first welfare scheme', 'done' => false],
+        ['key' => 'links', 'label' => 'Create your first short link', 'done' => false],
     ],
 ];

@@ -2,7 +2,7 @@
 
 return [
 
-    'name' => env('APP_NAME', 'Scheme Monitor'),
+    'name' => env('APP_NAME', 'Fluffy Enigma'),
 
     // Build version, stamped into the image at build time (see Dockerfile / CI).
     'version' => env('APP_VERSION', 'dev'),

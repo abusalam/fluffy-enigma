@@ -10,16 +10,16 @@ use Spatie\Permission\PermissionRegistrar;
 class PermissionSeeder extends Seeder
 {
     /**
-     * Idempotent baseline RBAC. Safe to run on every deploy: it only
-     * creates the canonical permissions and the four starter roles if
-     * they are missing, and never deletes operator-created roles.
+     * Idempotent baseline RBAC. Safe to run on every deploy: it creates the
+     * canonical permissions and starter roles, and prunes obsolete ones left
+     * over from the removed scheme-monitoring module.
      */
     public function run(): void
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $permissions = [
-            'schemes.view', 'schemes.manage',
+            'dashboard.view',
             'shortlinks.view', 'shortlinks.manage', 'shortlinks.view_all',
             'users.view', 'users.manage',
             'roles.view', 'roles.manage',
@@ -36,17 +36,15 @@ class PermissionSeeder extends Seeder
         $administrator = Role::findOrCreate('administrator', 'web');
         $administrator->syncPermissions($permissions);
 
-        $schemeManager = Role::findOrCreate('scheme-manager', 'web');
-        $schemeManager->syncPermissions([
-            'schemes.view', 'schemes.manage',
-            'shortlinks.view', 'shortlinks.manage',
-        ]);
+        $editor = Role::findOrCreate('editor', 'web');
+        $editor->syncPermissions(['dashboard.view', 'shortlinks.view', 'shortlinks.manage']);
 
         $viewer = Role::findOrCreate('viewer', 'web');
-        $viewer->syncPermissions(['schemes.view']);
+        $viewer->syncPermissions(['dashboard.view', 'shortlinks.view']);
 
-        // The dashboard is now gated by `schemes.view`; drop the obsolete one.
-        Permission::where('name', 'dashboard.view')->delete();
+        // Prune artefacts of the removed scheme module.
+        Permission::whereIn('name', ['schemes.view', 'schemes.manage'])->delete();
+        Role::where('name', 'scheme-manager')->delete();
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }

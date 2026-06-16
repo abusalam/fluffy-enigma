@@ -33,7 +33,7 @@ class Index extends Component
     public bool $is_active = true;
 
     /** Reserved first path segments that must not be used as a code. */
-    protected array $reserved = ['s', 'setup', 'login', 'logout', 'dashboard', 'schemes', 'users', 'roles', 'permissions', 'links', 'livewire', 'up', 'storage', 'build', 'vendor'];
+    protected array $reserved = ['s', 'setup', 'login', 'logout', 'dashboard', 'users', 'roles', 'permissions', 'links', 'livewire', 'up', 'storage', 'build', 'vendor'];
 
     protected function rules(): array
     {

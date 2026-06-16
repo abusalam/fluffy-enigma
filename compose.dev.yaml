@@ -21,7 +21,6 @@ services:
       SERVER_NAME: ":80"
       LOG_LEVEL: debug
       LOG_STACK: stderr
-      SEED_DEMO_DATA: "true"
       APP_ONBOARDING_SECRET: dev-setup-secret
     volumes:
       - .:/app                      # live source

@@ -35,7 +35,7 @@ if [ ! -f .env ]; then
   SECRET="\$(openssl rand -hex 24)"
   if [ -n '${DOMAIN}' ]; then SRV='${DOMAIN}'; URL='https://${DOMAIN}'; else SRV=':80'; URL='http://${HOST}'; fi
   cat > .env <<ENV
-APP_NAME="Scheme Monitor"
+APP_NAME="Fluffy Enigma"
 APP_ENV=production
 APP_DEBUG=false
 APP_KEY=\${APP_KEY}
@@ -49,7 +49,6 @@ CACHE_STORE=file
 QUEUE_CONNECTION=sync
 LOG_STACK=stderr
 LOG_LEVEL=warning
-SEED_DEMO_DATA=true
 APP_IMAGE=${IMAGE}
 ENV
 else

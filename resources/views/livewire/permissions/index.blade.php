@@ -40,7 +40,7 @@
                 <div>
                     <label class="label">Permission name</label>
                     <input wire:model="name" type="text" class="input" placeholder="e.g. reports.export">
-                    <p class="mt-1 text-xs text-gray-400">Lowercase, dot/dash/underscore only (e.g. <code>schemes.export</code>).</p>
+                    <p class="mt-1 text-xs text-gray-400">Lowercase, dot/dash/underscore only (e.g. <code>reports.export</code>).</p>
                     @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div class="flex justify-end gap-3 pt-2">

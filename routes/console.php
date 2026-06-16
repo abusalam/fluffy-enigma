@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('inspire', function () {
-    $this->comment('Serving welfare schemes, transparently.');
+    $this->comment('Fluffy Enigma — simple, transparent, fast.');
 })->purpose('Display an inspiring quote');

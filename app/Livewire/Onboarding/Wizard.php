@@ -53,7 +53,7 @@ class Wizard extends Component
             return;
         }
 
-        $this->appName = config('app.name', 'Scheme Monitor');
+        $this->appName = config('app.name', 'Fluffy Enigma');
         $this->checklist = config('onboarding.default_steps');
     }
 

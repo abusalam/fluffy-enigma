@@ -1,14 +1,13 @@
-# Scheme Monitor
+# Fluffy Enigma
 
 [![CI](https://github.com/abusalam/fluffy-enigma/actions/workflows/ci.yml/badge.svg)](https://github.com/abusalam/fluffy-enigma/actions/workflows/ci.yml)
 
-A single-container **Laravel 12 + Livewire** portal for monitoring government /
-welfare schemes, with **dynamic role-based access control**, a **configurable logo**,
-and a **secret-URL first-run onboarding** wizard. Until setup is finished the public
-sees an *“under construction”* page.
+A single-container **Laravel 12 + Livewire** portal with **dynamic role-based access
+control**, a **URL shortener** with click tracking, **home-page visitor analytics**,
+a **configurable logo**, and a **secret-URL first-run onboarding** wizard. Until setup
+is finished the public sees an *“under construction”* page.
 
-Built to run on one **FrankenPHP** container, sized for a **GCS `e2-micro` VM
-(2 vCPU / 1 GB RAM)**.
+Built to run on one **FrankenPHP** container, sized for a small VM (2 vCPU / 1 GB RAM).
 
 ---
 
@@ -17,17 +16,15 @@ Built to run on one **FrankenPHP** container, sized for a **GCS `e2-micro` VM
 1. **User management with dynamic roles & permissions** — create roles and
    permissions at runtime (no redeploy), assign them to users. Backed by
    [spatie/laravel-permission]. A `super-admin` role implicitly holds everything.
-2. **Scheme Monitoring dashboard** — KPIs (budget allocated/disbursed, utilisation,
-   beneficiary coverage) and charts (status, category, budget) over welfare schemes,
-   plus full scheme CRUD.
-3. **Configurable branding + onboarding** — a one-time wizard at a secret URL
-   (`/setup/{secret}`) sets the portal name & logo and creates the first
-   super-administrator. Before completion every public route shows the construction page.
-4. **URL shortener with click tracking** — create root-level short links (`/{code}`,
-   custom or auto-generated), enable/disable them, and track total + unique clicks per link.
-5. **Home-page visitor analytics** — every hit on `/` is counted and split into
+2. **URL shortener with click tracking** — create root-level short links (`/{code}`,
+   custom or auto-generated), enable/disable them, and track total + unique clicks.
+   Links are **scoped to their creator**; administrators see all.
+3. **Home-page visitor analytics** — every hit on `/` is counted and split into
    **unique vs repeat visitors** (privacy-respecting hashed cookie + hashed IP),
    surfaced on the dashboard.
+4. **Configurable branding + onboarding** — a one-time wizard at a secret URL
+   (`/setup/{secret}`) sets the portal name & logo and creates the first
+   super-administrator. Before completion every public route shows the construction page.
 
 ## Stack at a glance
 
@@ -37,10 +34,10 @@ Built to run on one **FrankenPHP** container, sized for a **GCS `e2-micro` VM
 | Framework    | **Laravel 12**, **Livewire 3** (TALL stack)       |
 | RBAC         | **spatie/laravel-permission 6**                   |
 | Database     | **SQLite** (WAL) — zero extra memory              |
-| Frontend     | **Tailwind 3** + **Vite**, **Chart.js** (CDN)     |
+| Frontend     | **Tailwind 3** + **Vite**                         |
 | Cache/session| File-based (no Redis needed)                      |
 | Container    | Multi-stage build, ~1 image, healthcheck on `/up` |
-| Host target  | GCS `e2-micro` (free tier), 2 GB swap             |
+| CI/CD        | GitHub Actions → GHCR (builds & publishes image)  |
 
 See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for the full architecture & operations guide.
 
@@ -57,7 +54,7 @@ docker compose -f compose.dev.yaml up --build
 
 - App:  <http://localhost:8000>
 - Vite HMR: <http://localhost:5173>
-- The dev stack auto-creates `.env`, generates a key, migrates, and seeds demo schemes.
+- The dev stack auto-creates `.env`, generates a key, and migrates/seeds the RBAC baseline.
 - Onboarding wizard (dev secret = `dev-setup-secret`):
   <http://localhost:8000/setup/dev-setup-secret>
 
@@ -73,9 +70,9 @@ make test
 
 ## Quick start — production on a VM (SSH + GHCR)
 
-Bring your own VM (e2-micro or anything you can SSH into). **CI builds the image** and
-pushes it to **GitHub Container Registry**; you deploy by **pulling** it onto the VM
-over plain SSH — no provider CLI, no local build, and the VM never builds.
+Bring your own VM (anything you can SSH into). **CI builds the image** and pushes it to
+**GitHub Container Registry**; you deploy by **pulling** it onto the VM over plain SSH —
+no provider CLI, no local build, and the VM never builds.
 
 ```bash
 cp deploy/config.env.example deploy/config.env   # set SSH_HOST/SSH_USER, IMAGE_OWNER, optional DOMAIN
@@ -98,11 +95,12 @@ Full walkthrough: [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 ## Project layout
 
 ```
-app/Livewire/            Dashboard, Auth, Onboarding, Users, Roles, Permissions, Schemes
+app/Livewire/            Dashboard, Auth, Onboarding, Users, Roles, Permissions, ShortLinks
 app/Http/Middleware/     EnsureOnboarded (the under-construction gate)
-app/Models/              User, Scheme, Setting
+app/Support/             VisitTracker (home + short-link hit tracking)
+app/Models/              User, ShortLink, ShortLinkClick, Visitor, HomeVisit, Setting
 config/onboarding.php    Secret + default onboarding checklist
-database/                Migrations, seeders (PermissionSeeder, DemoSchemeSeeder)
+database/                Migrations, seeders (PermissionSeeder)
 docker/                  Caddyfile, php tuning, entrypoints
 Dockerfile               Multi-stage FrankenPHP image
 docker-compose.yml       Production single-container stack
