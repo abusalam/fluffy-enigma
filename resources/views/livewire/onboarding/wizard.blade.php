@@ -48,7 +48,7 @@
                 <div wire:loading wire:target="logo" class="mt-2 text-xs text-gray-500">Uploading…</div>
                 @error('logo') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 @if ($logo)
-                    <img src="{{ $logo->temporaryUrl() }}" class="mt-3 h-16 w-auto rounded ring-1 ring-gray-200">
+                    <img src="{{ $logo->temporaryUrl() }}" class="mt-3 h-20 w-20 rounded-full object-cover ring-1 ring-gray-200">
                 @endif
             </div>
             <div class="flex gap-3 pt-2">

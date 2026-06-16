@@ -31,10 +31,10 @@
            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
         <div class="flex h-16 items-center gap-3 border-b border-gray-200 px-5">
             @if (! empty($brandLogo))
-                <img src="{{ $brandLogo }}" alt="logo" class="h-8 w-auto">
+                <img src="{{ $brandLogo }}" alt="logo" class="h-9 w-9 rounded-full object-cover ring-1 ring-gray-200">
             @else
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-                    {{ strtoupper(substr($brandName ?? 'S', 0, 1)) }}
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
+                    {{ strtoupper(substr($brandName ?? 'F', 0, 1)) }}
                 </div>
             @endif
             <span class="truncate font-semibold">{{ $brandName ?? config('app.name') }}</span>

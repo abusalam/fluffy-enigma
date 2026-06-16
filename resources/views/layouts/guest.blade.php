@@ -15,10 +15,10 @@
         <div class="mx-auto w-full max-w-md">
             <div class="mb-8 flex flex-col items-center">
                 @if (! empty($brandLogo))
-                    <img src="{{ $brandLogo }}" alt="{{ $brandName }}" class="h-16 w-auto">
+                    <img src="{{ $brandLogo }}" alt="{{ $brandName }}" class="h-20 w-20 rounded-full object-cover ring-1 ring-gray-200">
                 @else
-                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-2xl font-bold text-white">
-                        {{ strtoupper(substr($brandName ?? 'S', 0, 1)) }}
+                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-brand-600 text-3xl font-bold text-white">
+                        {{ strtoupper(substr($brandName ?? 'F', 0, 1)) }}
                     </div>
                 @endif
                 <h1 class="mt-4 text-xl font-semibold text-gray-900">{{ $brandName ?? config('app.name') }}</h1>

@@ -17,11 +17,11 @@
             <label class="label">Logo</label>
             <div class="flex items-center gap-4">
                 @if ($logo)
-                    <img src="{{ $logo->temporaryUrl() }}" alt="New logo preview" class="h-16 w-auto rounded ring-1 ring-gray-200">
+                    <img src="{{ $logo->temporaryUrl() }}" alt="New logo preview" class="h-20 w-20 rounded-full object-cover ring-1 ring-gray-200">
                 @elseif ($currentLogo)
-                    <img src="{{ asset('storage/'.$currentLogo) }}" alt="Current logo" class="h-16 w-auto rounded ring-1 ring-gray-200">
+                    <img src="{{ asset('storage/'.$currentLogo) }}" alt="Current logo" class="h-20 w-20 rounded-full object-cover ring-1 ring-gray-200">
                 @else
-                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-2xl font-bold text-white">
+                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-brand-600 text-3xl font-bold text-white">
                         {{ strtoupper(substr($appName ?: 'F', 0, 1)) }}
                     </div>
                 @endif
